@@ -53,11 +53,13 @@ namespace :station do
   end
 end
 
-desc "Fetches departures"
-task :departure_fetch do
-  d = Departure.new
-  d.fetch
-  d.close
+namespace :departure do
+  desc "Fetches departures"
+  task :fetch do
+    d = Departure.new
+    d.fetch
+    d.close
+  end
 end
 
 task :show_about do

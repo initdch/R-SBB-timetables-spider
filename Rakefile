@@ -40,6 +40,13 @@ namespace :station do
     s.close
   end
   
+  desc "Remove stations outside of Switzerland"
+  task :geo_clean do
+    s = StationPool.new
+    s.clean_geo
+    s.close
+  end
+  
   desc "Export stations as CSV"
   task :export do
     sh 'sqlite3 -header -csv tmp/sbb.db "SELECT * FROM station" > tmp/station.csv'

@@ -1,3 +1,5 @@
+require "inc/point_polygon.rb"
+
 require "rubygems"
 
 require "nokogiri"
@@ -44,6 +46,22 @@ class StationPool
   
   def close
     @db.close
+  end
+  
+  def clean_geo
+    sql = "SELECT id, x, y FROM station"
+    rows = @db.execute(sql)
+    
+    contourCSV = Dir.pwd + "/resources/contour_ch_wgs84.txt"
+    chPolygon = Polygon.new
+    chPolygon.load_from_file(contourCSV)
+
+    rows.each do |r|
+      if ! chPolygon.contains_point?({'x' => r['x'].to_f, 'y' => r['y'].to_f})
+        sql = "DELETE FROM station WHERE id = " + r['id']
+        @db.execute(sql)
+      end
+    end
   end
   
   # # Why doesn't work ?

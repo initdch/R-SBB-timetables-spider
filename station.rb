@@ -1,19 +1,6 @@
 require "inc/point_polygon.rb"
 
-require "rubygems"
-
-require "nokogiri"
-require "open-uri"
-require "ftools"
-require "sqlite3"
-
-class StationPool
-  def initialize
-    # TODO: db path - global scope ?
-    @db = SQLite3::Database.open(Dir.pwd + "/tmp/sbb.db")
-    @db.results_as_hash = true
-  end
-
+class Station < Crawler
   def fetch
     sql = "SELECT * FROM station"
     checkedIDs = []
@@ -42,10 +29,6 @@ class StationPool
         end
       end
     end until stopSearching
-  end
-  
-  def close
-    @db.close
   end
   
   def clean_geo
@@ -136,7 +119,3 @@ class StationPool
     return (longitude < cornerSW_X) || (latitude > cornerNE_Y) || (longitude > cornerNE_X) || (latitude < cornerSW_Y)
   end
 end
-
-# Used when running 'ruby station.rb'
-# s = StationPool.new
-# s.fetch

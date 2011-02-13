@@ -1,15 +1,7 @@
-require "rubygems"
-require "nokogiri"
-require "open-uri"
-require "ftools"
-require "sqlite3"
-
-class Departure
+class Departure < Crawler
   def initialize
-    # TODO: db path - global scope ?
-    @db = SQLite3::Database.open(Dir.pwd + "/tmp/sbb.db")
-    @db.results_as_hash = true
-    
+    super
+
     time = Time.new
     @dateStart = time.strftime("%d.%m.%y")
     @dateEnd = "10.12.11"
@@ -37,7 +29,7 @@ class Departure
           sbbURL += "&input=" + sbbID.to_s
           sbbURL += "&dateBegin=" + @dateStart
           sbbURL += "&dateEnd=" + @dateEnd
-          sbbURL += "&time=" + @time
+          sbbURL += "&time=" + time
 
           p "Fetching " + sbbURL
           begin
@@ -77,11 +69,5 @@ class Departure
       
       k = k + 1
     end
-  end
-  
-  def close
-    @db.close
-  end
-  
-  private
+  end  
 end

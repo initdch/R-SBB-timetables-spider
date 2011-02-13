@@ -1,7 +1,9 @@
 require "rubygems"
+
 require "ftools"
 require "sqlite3"
 
+require "./crawler.rb"
 require "./station.rb"
 require "./departure.rb"
 

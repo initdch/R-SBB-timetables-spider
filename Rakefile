@@ -25,7 +25,7 @@ end
 
 namespace :station do
   desc "Empty SBB stations table"
-  task :empty_db do
+  task :empty_table do
     db = SQLite3::Database.new crawlerDBPath
     db.execute_batch IO.read(Dir.pwd + "/resources/sql/02-station.sql")
     db.close
@@ -61,7 +61,7 @@ namespace :departure do
   
   desc "Removed files cached files containing errors"
   task :files_clean do
-    sh 'find tmp/cache/departure/ -name "*.html" -size -20k | xargs grep -l "Code: " | xargs rm'
+    sh 'find tmp/cache/departure/ -name "*.html" -size -30k | xargs grep -l "Code: " | xargs rm'
   end
 end
 
@@ -71,6 +71,13 @@ namespace :timetable do
     d = Timetable.new
     d.parse
     d.close
+  end
+  
+  desc "Empty timetables table"
+  task :empty_table do
+    db = SQLite3::Database.new crawlerDBPath
+    db.execute_batch IO.read(Dir.pwd + "/resources/sql/03-timetable.sql")
+    db.close
   end
 end
 

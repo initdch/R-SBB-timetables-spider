@@ -91,12 +91,18 @@ class StationPool
 
       sql = "SELECT count(*) from station WHERE id = ?"
       alreadyIn = 1 === @db.get_first_value(sql, sbbID).to_i
-      if alreadyIn
-        # p "Entry " + link.content + "(" + sbbID + ") is already in DB. TODO: Update ?"
-      else
+      if ! alreadyIn
         # p "Inserting in DB " + link.content + "(" + sbbID + ")"
         sql = "INSERT INTO station (id, name, x, y) VALUES (?, ?, ?, ?)"
-        @db.execute(sql, sbbID, link.content, longitude, latitude)
+
+        begin
+          @db.execute(sql, sbbID, link.content, longitude, latitude)
+        rescue => e
+          if e.message != 'database is locked'
+            raise e.message
+          end
+          sleep 1
+        end
       end
     end
     

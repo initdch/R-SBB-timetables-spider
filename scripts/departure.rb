@@ -14,6 +14,9 @@ class Departure < Crawler
     sql = "SELECT * FROM station"
     rows = @db.execute(sql)
     k = 1
+    
+    maxPages = 500
+    
     rows.each do |station|
       sbbID = station['id'];
       page = 1
@@ -49,7 +52,7 @@ class Departure < Crawler
         hasNextPage = doc.xpath('//table[@class="hafas-content"]//td[span[@class="red"]]//a[contains(text(),"Weitere")]').length == 1
         if hasNextPage
           begin
-            timeLast = doc.xpath('//table[@class="hafas-content hafas-sq-content"]//tr[contains(@class,"zebra-row-3") or contains(@class,"zebra-row-2")][last()]/td[1]/span')[0].text()
+            timeLast = doc.xpath('//table[@class="hafas-content hafas-sq-content"]//tr[contains(@class,"zebra-row-3") or contains(@class,"zebra-row-2")][td[not(@colspan)]][last()]/td[1]/span')[0].text()
           rescue
             p "ERROR: XPATH IN " + cacheFile
             timeLast = time
@@ -64,6 +67,11 @@ class Departure < Crawler
           end
         else
           lastPage = true
+        end
+        
+        if page > maxPages
+          p "ERROR - maximum pages reached for " + sbbID.to_s
+          break
         end
 
       end until lastPage

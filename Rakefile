@@ -60,6 +60,11 @@ namespace :departure do
     d.fetch
     d.close
   end
+  
+  desc "Removed files cached files containing errors"
+  task :files_clean do
+    sh 'find tmp/cache/departure/ -name "*.html" -size -20k | xargs grep -l "Code: C0" | xargs rm'
+  end
 end
 
 task :show_about do

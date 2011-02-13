@@ -3,6 +3,7 @@ require "ftools"
 require "sqlite3"
 
 require "./station.rb"
+require "./departure.rb"
 
 crawlerDBPath = Dir.pwd + "/tmp/sbb.db"
 
@@ -17,27 +18,40 @@ task :setup do
   if ! File.file? crawlerDBPath
     puts "Creating crawler DB " + stationCacheFolder
     db = SQLite3::Database.new crawlerDBPath
-    sql = IO.read(Dir.pwd + "/sql/01-schema.sql")
-    sql += IO.read(Dir.pwd + "/sql/02-station.sql")
+    sql = IO.read(Dir.pwd + "/resources/sql/01-schema.sql")
+    sql += IO.read(Dir.pwd + "/resources/sql/02-station.sql")
     db.execute_batch(sql)
     db.close
   end
 end
 
-desc "Fetches SBB stations"
-task :station_fetch do
-  s = StationPool.new
-  s.fetch
-  s.close
+namespace :station do
+  desc "Empty SBB stations table"
+  task :empty_db do
+    db = SQLite3::Database.new crawlerDBPath
+    db.execute_batch IO.read(Dir.pwd + "/resources/sql/02-station.sql")
+    db.close
+  end
+
+  desc "Fetches SBB stations"
+  task :fetch do
+    s = StationPool.new
+    s.fetch
+    s.close
+  end
+  
+  desc "Export stations as CSV"
+  task :export do
+    sh 'sqlite3 -header -csv tmp/sbb.db "SELECT * FROM station" > tmp/station.csv'
+  end
 end
 
-desc "Empty SBB stations table"
-task :station_empty do
-  db = SQLite3::Database.new crawlerDBPath
-  db.execute_batch IO.read(Dir.pwd + "/sql/02-station.sql")
-  db.close
+desc "Fetches departures"
+task :departure_fetch do
+  d = Departure.new
+  d.fetch
+  d.close
 end
-
 
 task :show_about do
     puts "For a list of the possible tasks please run 'rake -T'"

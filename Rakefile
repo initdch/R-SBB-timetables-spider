@@ -62,6 +62,15 @@ namespace :departure do
   end
 end
 
+namespace :timetable do
+  desc "Parse timetables"
+  task :parse do
+    d = Timetable.new
+    d.parse
+    d.close
+  end
+end
+
 task :show_about do
     puts "For a list of the possible tasks please run 'rake -T'"
 end

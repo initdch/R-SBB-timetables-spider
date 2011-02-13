@@ -1,4 +1,7 @@
-require "./scripts/crawler.rb"
+require "scripts/crawler.rb"
+require "scripts/station.rb"
+require "scripts/departure.rb"
+require "scripts/timetable.rb"
 
 crawlerDBPath = Dir.pwd + "/tmp/sbb.db"
 
@@ -58,7 +61,7 @@ namespace :departure do
   
   desc "Removed files cached files containing errors"
   task :files_clean do
-    sh 'find tmp/cache/departure/ -name "*.html" -size -20k | xargs grep -l "Code: C0" | xargs rm'
+    sh 'find tmp/cache/departure/ -name "*.html" -size -20k | xargs grep -l "Code: " | xargs rm'
   end
 end
 

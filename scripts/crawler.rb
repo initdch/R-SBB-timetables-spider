@@ -5,10 +5,6 @@ require "sqlite3"
 require "nokogiri"
 require "open-uri"
 
-require "./scripts/station.rb"
-require "./scripts/departure.rb"
-require "./scripts/timetable.rb"
-
 class Crawler
   def initialize
     # TODO: db path - global scope ?

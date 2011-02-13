@@ -25,7 +25,8 @@ class Departure < Crawler
         cacheFile = stationCacheFolder + "/" + sbbID.to_s + "_" + page.to_s + ".html"
         
         if ! File.file? cacheFile 
-          sbbURL = "http://fahrplan.sbb.ch/bin/bhftafel.exe/en?maxJourneys=50&start=Anzeigen&boardType=dep"
+          # TODO - 'dn' to be replaced later with 'en'
+          sbbURL = "http://fahrplan.sbb.ch/bin/bhftafel.exe/dn?maxJourneys=50&start=Anzeigen&boardType=dep"
           sbbURL += "&input=" + sbbID.to_s
           sbbURL += "&dateBegin=" + @dateStart
           sbbURL += "&dateEnd=" + @dateEnd
@@ -48,7 +49,7 @@ class Departure < Crawler
         hasNextPage = doc.xpath('//table[@class="hafas-content"]//td[span[@class="red"]]//a[contains(text(),"Weitere")]').length == 1
         if hasNextPage
           begin
-            timeLast = doc.xpath('//table[@class="hafas-content hafas-sq-content"]//tr[contains(@class,"zebra-row-3")][td[not(@colspan)]][last()]/td[1]/span')[0].text()
+            timeLast = doc.xpath('//table[@class="hafas-content hafas-sq-content"]//tr[contains(@class,"zebra-row-3") or contains(@class,"zebra-row-2")][last()]/td[1]/span')[0].text()
           rescue
             p "ERROR: XPATH IN " + cacheFile
             timeLast = time

@@ -1,0 +1,2 @@
+DELETE FROM timetable;
+VACUUM;

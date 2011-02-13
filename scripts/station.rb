@@ -95,7 +95,8 @@ class Station < Crawler
       if ! alreadyIn
         # p "Inserting in DB " + link.content + "(" + sbbID + ")"
         sql = "INSERT INTO station (id, name, x, y) VALUES (?, ?, ?, ?)"
-
+        
+        # TODO: better way -- now is too slow ?
         begin
           @db.execute(sql, sbbID, link.content, longitude, latitude)
         rescue => e

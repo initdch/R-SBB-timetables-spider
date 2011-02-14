@@ -16,7 +16,7 @@ class Timetable < Crawler
         end
         
         doc = Nokogiri::HTML(IO.read(cacheFile))
-        row = doc.xpath('//table[@class="hafas-content hafas-sq-content"]//tr[contains(@class,"zebra-row-2") or contains(@class,"zebra-row-3")]')
+        row = doc.xpath('//table[@class="hafas-content hafas-sq-content"]//tr[contains(@class,"zebra-row-2") or contains(@class,"zebra-row-3")][td[not(@colspan)]]')
         
         row.each do |tr|
           # TODO: better way ?
@@ -38,7 +38,7 @@ class Timetable < Crawler
             vehicleID = vehicleName.gsub(/\s/, '') + '_' + stationEndID + '_' + stationEndTime
           rescue => e
             p "ERROR: wrong XPATH while parsing " + cacheFile
-            raise e.message
+            p e.message
           end
           
           sql = "INSERT INTO timetable (id, station_id, vehicle_id, departure_time, vehicle_type, vehicle_name, vehicle_notes) VALUES (?, ?, ?, ?, ?, ?, ?)"

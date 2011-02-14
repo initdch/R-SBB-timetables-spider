@@ -22,7 +22,7 @@ class Departure < Crawler
       page = 1
       time = "00:00"
       
-      p "Departures for " + sbbID + " " + k.to_s + "/" + rows.length.to_s
+      # p "Departures for " + sbbID + " " + k.to_s + "/" + rows.length.to_s
       
       begin
         cacheFile = stationCacheFolder + "/" + sbbID.to_s + "_" + page.to_s + ".html"

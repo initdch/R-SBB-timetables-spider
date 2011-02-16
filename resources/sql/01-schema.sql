@@ -2,8 +2,7 @@ CREATE TABLE station (
     id INTEGER PRIMARY KEY,
     name VARCHAR(255),
     x REAL,
-    y REAL,
-    status VARCHAR(255)
+    y REAL
 );
 
 CREATE TABLE timetable (

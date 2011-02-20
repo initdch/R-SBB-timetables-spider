@@ -1,7 +1,7 @@
-require "scripts/crawler.rb"
-require "scripts/station.rb"
-require "scripts/departure.rb"
-require "scripts/timetable.rb"
+require "./scripts/crawler.rb"
+require "./scripts/station.rb"
+require "./scripts/departure.rb"
+require "./scripts/timetable.rb"
 
 crawlerDBPath = Dir.pwd + "/tmp/sbb.db"
 
@@ -19,6 +19,15 @@ task :setup do
     sql = IO.read(Dir.pwd + "/resources/sql/01-schema.sql")
     sql += IO.read(Dir.pwd + "/resources/sql/02-station.sql")
     db.execute_batch(sql)
+    db.close
+  end
+end
+
+namespace :db do
+  desc "Optimizes db file"
+  task :vacuum do
+    db = SQLite3::Database.new crawlerDBPath
+    db.execute('VACUUM')
     db.close
   end
 end
@@ -68,9 +77,9 @@ end
 namespace :timetable do
   desc "Parse timetables"
   task :parse do
-    d = Timetable.new
-    d.parse
-    d.close
+    t = Timetable.new
+    t.parse
+    t.close
   end
   
   desc "Empty timetables table"
@@ -78,6 +87,13 @@ namespace :timetable do
     db = SQLite3::Database.new crawlerDBPath
     db.execute_batch IO.read(Dir.pwd + "/resources/sql/03-timetable.sql")
     db.close
+  end
+  
+  desc "Removed duplicates from the timetables"
+  task :remve_duplicates do
+    t = Timetable.new
+    t.remove_duplicates
+    t.close
   end
 end
 

@@ -1,6 +1,5 @@
 require "rubygems"
 
-require "ftools"
 require "sqlite3"
 require "nokogiri"
 require "open-uri"

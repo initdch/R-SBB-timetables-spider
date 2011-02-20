@@ -83,4 +83,35 @@ class Timetable < Crawler
     
     p "END " + Time.new.strftime("%Y-%m-%d %H:%M:%S")
   end
+  
+  def remove_duplicates
+    p "START " + Time.new.strftime("%Y-%m-%d %H:%M:%S")
+    
+    ids2Delete = []
+    
+    sql = "SELECT id FROM station"
+    rows = @db.execute(sql)
+    rows.each_with_index do |station, k|
+      sql = "SELECT GROUP_CONCAT(id) AS ids FROM timetable WHERE station_id = " + station['id'].to_s + " GROUP BY (departure_time || vehicle_id) HAVING COUNT(id) > 1"
+      dRows = @db.execute(sql)
+      if dRows.length == 0
+        next
+      end
+      
+      ids = []
+      dRows.each do |dRow|
+        ids += dRow['ids'].split(',')[1..-1]
+      end
+      ids2Delete.push(ids)
+    end
+    
+    @db.transaction
+      ids2Delete.each do |ids|
+        sql = "DELETE FROM timetable WHERE id IN (" + ids.join(',') + ")"
+        @db.execute(sql)
+      end
+    @db.commit
+    
+    p "END " + Time.new.strftime("%Y-%m-%d %H:%M:%S")
+  end
 end

@@ -1,4 +1,4 @@
-require "inc/point_polygon.rb"
+require "./inc/point_polygon.rb"
 
 class Station < Crawler
   def fetch

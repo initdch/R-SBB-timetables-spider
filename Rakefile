@@ -2,6 +2,7 @@ require "./scripts/crawler.rb"
 require "./scripts/station.rb"
 require "./scripts/departure.rb"
 require "./scripts/timetable.rb"
+require "./scripts/lookup_vehicle_types.rb"
 
 crawlerDBPath = Dir.pwd + "/tmp/sbb.db"
 
@@ -42,14 +43,14 @@ namespace :station do
 
   desc "Fetches SBB stations"
   task :fetch do
-    s = StationPool.new
+    s = Station.new
     s.fetch
     s.close
   end
   
   desc "Remove stations outside of Switzerland"
   task :geo_clean do
-    s = StationPool.new
+    s = Station.new
     s.clean_geo
     s.close
   end
@@ -57,6 +58,13 @@ namespace :station do
   desc "Export stations as CSV"
   task :export do
     sh 'sqlite3 -header -csv tmp/sbb.db "SELECT * FROM station" > tmp/station.csv'
+  end
+  
+  desc "Guess the type from timetables"
+  task :parse_type do
+    s = Station.new
+    s.parse_type
+    s.close
   end
 end
 
@@ -89,11 +97,18 @@ namespace :timetable do
     db.close
   end
   
-  desc "Removed duplicates from the timetables"
-  task :remve_duplicates do
+  desc "Remove duplicates from the timetables"
+  task :remove_duplicates do
     t = Timetable.new
     t.remove_duplicates
     t.close
+  end
+  
+  desc "Remove stops of the not-known stations"
+  task :remove_notknown_stations do
+    db = SQLite3::Database.new crawlerDBPath
+    db.execute_batch IO.read(Dir.pwd + "/resources/sql/03-timetable-remove-notknown.sql")
+    db.close
   end
 end
 

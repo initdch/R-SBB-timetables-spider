@@ -47,6 +47,75 @@ class Station < Crawler
     end
   end
   
+  def parse_type
+    # See lookup_vehicle_types.rb
+
+    p "START " + Time.new.strftime("%Y-%m-%d %H:%M:%S")
+    
+    stationTypes = {}
+    poolNewTypes = []
+    
+    sql = "SELECT * FROM station"
+    rows = @db.execute(sql)
+    rows.each do |station|
+      sbbID = station['id']
+      sql = "SELECT GROUP_CONCAT(vehicle_type) AS types FROM timetable WHERE station_id = " + sbbID.to_s
+      vehicleTypes = @db.execute(sql)[0]['types']
+      if vehicleTypes == nil
+        next
+      end
+      
+      vehicleTypes = vehicleTypes.split(',').uniq
+      
+      finalType = nil
+      vehicleTypes.each do |foundType|
+        if $MAP_VEHICLETYPE_STATIONTYPE[foundType] == nil
+          poolNewTypes.push(foundType)
+          next
+        end
+          
+        if finalType == nil
+          finalType = $MAP_VEHICLETYPE_STATIONTYPE[foundType]
+        end
+        
+        currentType = $MAP_VEHICLETYPE_STATIONTYPE[foundType]
+        if $MAP_STATIONTYPE_PRIORITY[currentType] < $MAP_STATIONTYPE_PRIORITY[finalType]
+          finalType = currentType
+        end
+      end
+      
+      if finalType != nil
+        stationTypes[sbbID] = finalType
+      end
+    end
+    
+    if poolNewTypes.length > 0
+      p "Please check new types: "
+      poolNewTypes.uniq.sort.each do |type|
+        p "'" + type + "' => '',"
+      end
+    else
+      kSQL = 1
+      sql = "UPDATE station SET type = NULL"
+      @db.transaction
+        stationTypes.each do |id, type|
+          sql = "UPDATE station SET type = ? WHERE id = ?"
+          @db.execute(sql, type, id)
+          kSQL += 1
+          
+          if kSQL > 10000
+            kSQL = 1
+            @db.commit
+            p "Batch SQL"
+            @db.transaction
+          end
+        end
+      @db.commit
+    end
+    
+    p "END " + Time.new.strftime("%Y-%m-%d %H:%M:%S")
+  end
+  
   # # Why doesn't work ?
   # private
   

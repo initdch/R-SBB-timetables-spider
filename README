@@ -1,0 +1,14 @@
+Very draft version :)
+
+Basic information about the steps (run rake -T for the whole list of available tasks)
+
+rake setup
+rake station:fetch
+rake station:geo_clean
+rake departure:fetch
+rake departure:files_clean
+rake timetable:parse
+rake timetable:remove_duplicates
+rake timetable:remove_notknown_stations
+rake station:parse_type
+rake db:vacuum

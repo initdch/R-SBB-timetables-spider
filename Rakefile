@@ -8,14 +8,20 @@ crawlerDBPath = Dir.pwd + "/tmp/sbb.db"
 
 desc "Creating enviroment needed for the script"
 task :setup do
-  stationCacheFolder = Dir.pwd + "/tmp/cache/station"
-  if ! File.directory? stationCacheFolder
-    puts "Creating cache folders " + stationCacheFolder
-    File.makedirs stationCacheFolder
+  cacheFolder = Dir.pwd + "/tmp/cache/station"
+  if ! File.directory? cacheFolder
+    puts "Creating cache folder " + cacheFolder
+    FileUtils.mkdir_p cacheFolder
+  end
+  
+  cacheFolder = Dir.pwd + "/tmp/cache/departure"
+  if ! File.directory? cacheFolder
+    puts "Creating cache folder " + cacheFolder
+    FileUtils.mkdir_p cacheFolder
   end
   
   if ! File.file? crawlerDBPath
-    puts "Creating crawler DB " + stationCacheFolder
+    puts "Creating crawler DB " + crawlerDBPath
     db = SQLite3::Database.new crawlerDBPath
     sql = IO.read(Dir.pwd + "/resources/sql/01-schema.sql")
     sql += IO.read(Dir.pwd + "/resources/sql/02-station.sql")

@@ -1,3 +1,5 @@
+# coding: utf-8
+
 require "./scripts/crawler.rb"
 require "./scripts/station.rb"
 require "./scripts/departure.rb"
@@ -6,27 +8,60 @@ require "./scripts/lookup_vehicle_types.rb"
 
 crawlerDBPath = Dir.pwd + "/tmp/sbb.db"
 
-desc "Creating enviroment needed for the script"
-task :setup do
-  cacheFolder = Dir.pwd + "/tmp/cache/station"
-  if ! File.directory? cacheFolder
-    puts "Creating cache folder " + cacheFolder
-    FileUtils.mkdir_p cacheFolder
-  end
-  
-  cacheFolder = Dir.pwd + "/tmp/cache/departure"
-  if ! File.directory? cacheFolder
-    puts "Creating cache folder " + cacheFolder
-    FileUtils.mkdir_p cacheFolder
-  end
-  
-  if ! File.file? crawlerDBPath
-    puts "Creating crawler DB " + crawlerDBPath
-    db = SQLite3::Database.new crawlerDBPath
+namespace :setup do
+  def create_db path
+    puts "Creating crawler DB " + path
+
+    db = SQLite3::Database.new path
     sql = IO.read(Dir.pwd + "/resources/sql/01-schema.sql")
-    sql += IO.read(Dir.pwd + "/resources/sql/02-station.sql")
-    db.execute_batch(sql)
+    db.execute_batch sql
     db.close
+    
+    Rake::Task['station:set_bounds'].execute
+  end
+
+  desc "Creating enviroment needed for the script"
+  task :init do
+    cacheFolder = Dir.pwd + "/tmp/cache/station"
+    if ! File.directory? cacheFolder
+      puts "Creating cache folder " + cacheFolder
+      FileUtils.mkdir_p cacheFolder
+    end
+  
+    cacheFolder = Dir.pwd + "/tmp/cache/departure"
+    if ! File.directory? cacheFolder
+      puts "Creating cache folder " + cacheFolder
+      FileUtils.mkdir_p cacheFolder
+    end
+  
+    if ! File.file? crawlerDBPath
+      create_db crawlerDBPath
+    end
+  end
+  
+  desc "Create DB"
+  task :create_db do
+    if File.file? crawlerDBPath
+      puts "Do you want to overwrite " + crawlerDBPath + " ?\nyes/no"
+      userYN = STDIN.gets.chomp
+
+      if userYN == 'yes'
+        FileUtils.rm crawlerDBPath
+      else
+        abort 'Still using the current DB'
+      end
+    end
+
+    create_db crawlerDBPath
+  end
+  
+  desc "Remove temporarely folder"
+  task :clean do
+    puts "The folder " + Dir.pwd + "/tmp will be deleted !\nContinue ? yes/no"
+    userYN = STDIN.gets.chomp
+    if userYN == 'yes'
+      FileUtils.rm_rf Dir.pwd + "/tmp"
+    end
   end
 end
 
@@ -40,13 +75,6 @@ namespace :db do
 end
 
 namespace :station do
-  desc "Empty SBB stations table"
-  task :empty_table do
-    db = SQLite3::Database.new crawlerDBPath
-    db.execute_batch IO.read(Dir.pwd + "/resources/sql/02-station.sql")
-    db.close
-  end
-
   desc "Fetches SBB stations"
   task :fetch do
     s = Station.new
@@ -71,6 +99,43 @@ namespace :station do
     s = Station.new
     s.parse_type
     s.close
+  end
+  
+  desc "Set the area bounds (optional parameter: bounds = SW, NE corners in long/lat)"
+  task :set_bounds do
+    # TODO - create a Bounds object to decouple the code from Rake
+    if ENV['bounds'] == nil
+      bounds = '5.85,45.75,10.7,47.8'
+    else
+      bounds = ENV['bounds']
+    end
+    
+    db = SQLite3::Database.new crawlerDBPath
+    
+    sql = "DELETE FROM settings WHERE key = 'bounds'"
+    db.execute sql
+    sql = "INSERT INTO settings (key, value) VALUES ('bounds', ?)"
+    db.execute sql, bounds
+    
+    s = Station.new
+
+    if ENV['bounds'] == nil
+      station = {
+        'id'    => '8503000',
+        'name'  => 'Zürich HB',
+        'x'     => 8.540192,
+        'y'     => 47.378177
+      }
+    else
+      station = s.findStationsInArea(bounds)
+    end
+    
+    sql = "DELETE FROM station"
+    db.execute sql
+    
+    s.insertStation(station)
+
+    db.close
   end
 end
 

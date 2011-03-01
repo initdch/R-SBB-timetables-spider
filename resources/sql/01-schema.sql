@@ -20,3 +20,8 @@ CREATE INDEX vehicle_id ON timetable(vehicle_id);
 CREATE INDEX departure_time ON timetable(departure_time);
 CREATE INDEX vehicle_type ON timetable(vehicle_type);
 CREATE INDEX vehicle_name ON timetable(vehicle_name);
+
+CREATE TABLE settings (
+    key VARCHAR(25),
+    value VARCHAR(255)
+);

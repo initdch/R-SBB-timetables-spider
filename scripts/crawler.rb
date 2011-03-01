@@ -3,6 +3,7 @@ require "rubygems"
 require "sqlite3"
 require "nokogiri"
 require "open-uri"
+require "htmlentities"
 
 class Crawler
   def initialize

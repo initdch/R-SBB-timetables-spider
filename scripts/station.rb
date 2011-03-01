@@ -12,34 +12,43 @@ class Station < Crawler
   end
   
   def fetch
-    p "NEEDS REFACTORING"
-    exit
-    
     sql = "SELECT * FROM station"
     checkedIDs = []
     
     begin
-      p "START ITERATION"
-      
       stopSearching = true
 
       rows = @db.execute(sql)
-      knownIDs = self.getKnownIDs(rows)
-
+      dbIDs = self.extractIDs(rows)
+      
+      p 'START ITERATION: ' + rows.length.to_s + ' records in DB / ' + checkedIDs.length.to_s + ' visited'
+      
       rows.each do |station|
         sbbID = station['id']
+
         if checkedIDs.include?(sbbID)
+          # Exclude the station in case of a further iteration
           next
         end
         
         # p "Searching around " + station['name'] + "(" + sbbID + ")"
-        newIDs = self.findStationsNear(sbbID)
-        
+        newStations = self.findStationsNear(sbbID)
+        newStations.each do |station|
+          if dbIDs.include?(station['id'])
+            next
+          end
+          self.insertStation(station)
+        end
+
         checkedIDs.push(sbbID)
         
-        if (newIDs - knownIDs).length > 0 
+        newIDs = self.extractIDs(newStations)
+        if (newIDs - dbIDs).length > 0 
+          # New stations found, mark another iteration
           stopSearching = false
         end
+        
+        dbIDs += newIDs
       end
     end until stopSearching
   end
@@ -165,7 +174,7 @@ class Station < Crawler
   # # Why doesn't work ?
   # private
   
-  def getKnownIDs rows
+  def extractIDs rows
     ids = []
     rows.each do |row|
       ids.push(row['id'])
@@ -232,10 +241,10 @@ class Station < Crawler
 
       sbbID = link['href'].scan(/input=([0-9]+?)&/)[0][0]
       newStation = {
-        'id'    => sbbID.to_s,
+        'id'    => sbbID.to_i,
         'name'  => coder.decode(link.content),
-        'x'     => longitude,
-        'y'     => latitude
+        'x'     => longitude.round(6),
+        'y'     => latitude.round(6)
       }
       
       newStations.push(newStation)

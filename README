@@ -6,8 +6,12 @@ Basic Rake steps workflow (run rake -T for the whole list of available tasks)
 
 # Create cache folders and SQLite DB
 rake setup:init
+
 # OPTIONAL step: by default whole Switzerland timetables are fetched
 #           if you want it only for a smaller area, run the following command
 #           'bounds' parameter contains 4 values, separated by comma:
 #               corner SW longitude,corner SW latitude,corner NE longitude,corner NE latitude
 rake station:set_bounds bounds=8.53,47.41,8.61,47.46
+
+# Discovers the stations in the studied area
+rake station:fetch

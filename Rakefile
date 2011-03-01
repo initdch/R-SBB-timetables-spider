@@ -149,6 +149,8 @@ namespace :departure do
   
   desc "Removed files cached files containing errors"
   task :files_clean do
+    p 'Removing files ... please rerun departure:fetch task if any files are shown '
+    sh 'find tmp/cache/departure/ -name "*.html" -size -30k | xargs grep -l "Code: "'
     sh 'find tmp/cache/departure/ -name "*.html" -size -30k | xargs grep -l "Code: " | xargs rm'
   end
 end

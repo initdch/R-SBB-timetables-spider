@@ -15,3 +15,33 @@ rake station:set_bounds bounds=8.53,47.41,8.61,47.46
 
 # Discovers the stations in the studied area
 rake station:fetch
+
+# OPTIONAL step: exports the stations in tmp/station.csv for visualizing data (i.e. in QGIS)
+rake station:export
+
+# OPTIONAL step(although recommended): remove the stations outside of Switzerland's borders
+rake station:geo_clean
+
+# Fetches from SBB, the files containing departures for each station
+rake departure:fetch
+
+# Removes the files that contains errors. If any files are mentioned, you have to run again the previous step
+rake departure:files_clean
+
+# Inserts the timetables in DB  
+rake timetable:parse
+
+# Remove timetable duplicates (based on departure, vehicle_id, destination)
+rake timetable:remove_duplicates
+
+# Remove stops of the stations that are now known (outside of Switzerland)
+rake timetable:remove_notknown_stations
+
+# Determine the station type from the timetables
+rake station:parse_type
+
+# OPTIONAL step: exports the stations in tmp/station.csv for visualizing data (i.e. in QGIS)
+rake station:export
+
+# OPTIONAL step: optimize the DB
+rake db:vacuum

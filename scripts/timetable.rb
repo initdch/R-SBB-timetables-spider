@@ -76,8 +76,6 @@ class Timetable < Crawler
       
           page += 1
         end #End station pages
-        
-        k += 1
       end #End SQL
     @db.commit 
     

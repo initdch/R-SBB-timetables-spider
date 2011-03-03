@@ -6,7 +6,7 @@ class Polygon
   end
 
   def load_from_file(file)
-    CSV.open(file, 'r', ',') do |row|
+    CSV.foreach(file) do |row|
       p = {"x" => row[0].to_f, "y" => row[1].to_f}
       @vertices.push(p)
     end

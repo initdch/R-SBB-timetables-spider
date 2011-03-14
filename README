@@ -45,3 +45,10 @@ rake station:export
 
 # OPTIONAL step: optimize the DB
 rake db:vacuum
+
+# Build the vehicle table based on departures
+rake vehicle:insert
+
+# Update the vehicle table with info for each vehicle and insert arrivals at destination in the timetables 
+rake vehicle:build
+

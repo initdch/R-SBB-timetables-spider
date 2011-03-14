@@ -1,0 +1,1 @@
+INSERT INTO vehicle (vehicle_id) SELECT DISTINCT vehicle_id FROM timetable;

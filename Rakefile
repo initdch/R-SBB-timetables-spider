@@ -5,6 +5,7 @@ require "./scripts/station.rb"
 require "./scripts/departure.rb"
 require "./scripts/timetable.rb"
 require "./scripts/lookup_vehicle_types.rb"
+require './scripts/vehicle.rb'
 
 crawlerDBPath = Dir.pwd + "/tmp/sbb.db"
 
@@ -181,6 +182,29 @@ namespace :timetable do
   task :remove_notknown_stations do
     db = SQLite3::Database.new crawlerDBPath
     db.execute_batch IO.read(Dir.pwd + "/resources/sql/03-timetable-remove-notknown.sql")
+    db.close
+  end
+end
+
+namespace :vehicle do
+  desc 'Create vehicles from timetables'
+  task :insert do
+    db = SQLite3::Database.new crawlerDBPath
+    db.execute_batch IO.read(Dir.pwd + '/resources/sql/04-vehicle-insert.sql')
+    db.close
+  end
+  
+  desc 'Build vehicles'
+  task :build do
+    v = Vehicle.new
+    v.build
+    v.close
+  end
+  
+  desc 'Reset vehicles and arrivals'
+  task :reset do
+    db = SQLite3::Database.new crawlerDBPath
+    db.execute_batch IO.read(Dir.pwd + '/resources/sql/04-vehicle-empty.sql')
     db.close
   end
 end

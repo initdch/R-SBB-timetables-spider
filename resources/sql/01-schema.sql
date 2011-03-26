@@ -5,6 +5,7 @@ CREATE TABLE station (
     y REAL,
     type VARCHAR(25)
 );
+CREATE INDEX station_type ON station(type);
 
 CREATE TABLE timetable (
     id INTEGER PRIMARY KEY,
@@ -18,8 +19,8 @@ CREATE TABLE timetable (
 CREATE INDEX station_id ON timetable(station_id);
 CREATE INDEX vehicle_id ON timetable(vehicle_id);
 CREATE INDEX departure_time ON timetable(departure_time);
-CREATE INDEX vehicle_type ON timetable(vehicle_type);
-CREATE INDEX vehicle_name ON timetable(vehicle_name);
+CREATE INDEX timetable_vehicle_type ON timetable(vehicle_type);
+CREATE INDEX timetable_vehicle_name ON timetable(vehicle_name);
 
 CREATE TABLE settings (
     key VARCHAR(25) PRIMARY KEY,

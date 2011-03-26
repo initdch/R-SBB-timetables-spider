@@ -28,7 +28,7 @@ class Vehicle < Crawler
         @db.transaction
           vehicleData.each do |vehicleRow|
             @db.execute(sqlArrival, nil, vehicleRow['station_end'], vehicleRow['vehicle_id'], vehicleRow['time_end'], vehicleRow['vehicle_type'], vehicleRow['vehicle_name'], 'vehicle_arrival')
-            @db.execute(sqlVehicleData, vehicleRow['vehicle_type'], vehicleRow['vehicle_name'], vehicleRow['time_start'], vehicleRow['time_end'], vehicleRow['station_start'], vehicleRow['station_end'], vehicleRow['vehicle_id'])
+            @db.execute(sqlVehicleData, $MAP_VEHICLETYPE_STATIONTYPE[vehicleRow['vehicle_type']], vehicleRow['vehicle_name'], vehicleRow['time_start'], vehicleRow['time_end'], vehicleRow['station_start'], vehicleRow['station_end'], vehicleRow['vehicle_id'])
           end
         @db.commit
         vehicleData = []

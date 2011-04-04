@@ -54,3 +54,6 @@ rake vehicle:build
 
 # Remove again stops of the stations that are now known (outside of Switzerland), which may be inserted by the previous step
 rake timetable:remove_notknown_stations
+
+# Remove vehicles that have only one station in Switzerland and the rest outside (like TGVs leaving  to France from the border)
+rake timetable:remove_onestopper

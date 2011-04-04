@@ -207,6 +207,13 @@ namespace :vehicle do
     db.execute_batch IO.read(Dir.pwd + '/resources/sql/04-vehicle-empty.sql')
     db.close
   end
+  
+  desc 'Remove one-stopper vehicles'
+  task :remove_onestopper do
+    db = SQLite3::Database.new crawlerDBPath
+    db.execute_batch IO.read(Dir.pwd + '/resources/sql/04-vehicle-remove-onestopper.sql')
+    db.close
+  end
 end
 
 task :show_about do

@@ -52,3 +52,5 @@ rake vehicle:insert
 # Update the vehicle table with info for each vehicle and insert arrivals at destination in the timetables 
 rake vehicle:build
 
+# Remove again stops of the stations that are now known (outside of Switzerland), which may be inserted by the previous step
+rake timetable:remove_notknown_stations

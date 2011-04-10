@@ -1,9 +1,10 @@
 $MAP_STATIONTYPE_PRIORITY = {
-  'train' => 1,
-  'tram'  => 2,
-  'bus'   => 3,
-  'boat'  => 4,
-  'cable' => 5
+  'train'       => 1,
+  'funicular'   => 2,
+  'tram'        => 3,
+  'bus'         => 4,
+  'boat'        => 5,
+  'cable'       => 6,
 }
 
 $MAP_VEHICLETYPE_STATIONTYPE = {
@@ -24,7 +25,7 @@ $MAP_VEHICLETYPE_STATIONTYPE = {
 
   'fae' => 'boat',
 
-  'fun' => 'train',
+  'fun' => 'funicular',
   'gb'  => 'cable',
 
   'ic'  => 'train',

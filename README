@@ -43,9 +43,6 @@ rake station:parse_type
 # OPTIONAL step: exports the stations in tmp/station.csv for visualizing data (i.e. in QGIS)
 rake station:export
 
-# OPTIONAL step: optimize the DB
-rake db:vacuum
-
 # Build the vehicle table based on departures
 rake vehicle:insert
 
@@ -56,4 +53,4 @@ rake vehicle:build
 rake timetable:remove_notknown_stations
 
 # Remove vehicles that have only one station in Switzerland and the rest outside (like TGVs leaving  to France from the border)
-rake timetable:remove_onestopper
+rake vehicle:remove_onestopper

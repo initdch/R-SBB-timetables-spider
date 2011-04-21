@@ -77,6 +77,10 @@ class Station < Crawler
     stationTypes = {}
     poolNewTypes = []
     
+    # First, reset the current types
+    sql = 'UPDATE station SET type = ""'
+    rows = @db.execute(sql)
+    
     sql = "SELECT * FROM station"
     rows = @db.execute(sql)
     rows.each do |station|

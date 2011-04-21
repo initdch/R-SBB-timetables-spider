@@ -54,3 +54,6 @@ rake timetable:remove_notknown_stations
 
 # Remove vehicles that have only one station in Switzerland and the rest outside (like TGVs leaving  to France from the border)
 rake vehicle:remove_onestopper
+
+# Run this step again because me might have stations without vehicle stops, so we don't want to display this station
+rake station:parse_type

@@ -37,4 +37,46 @@ class Vehicle < Crawler
     
     p 'END ' + Time.new.strftime('%Y-%m-%d %H:%M:%S')
   end #end build
+  
+  def check_duplicate_stations
+    def getDuplicatedStops vehicle_id, stops
+      def getDifference tA, tB
+        tA_Minutes = tA[0,2].to_i * 60 + tA[3,2].to_i
+        tB_Minutes = tB[0,2].to_i * 60 + tB[3,2].to_i
+        return tB_Minutes - tA_Minutes
+      end
+      
+      ids2Delete = []
+      stops.each_with_index do |stop, k|
+        if k == 0
+          next
+        end
+        sA = stops[k-1]['station_id']
+        sB = stop['station_id']
+        if sA === sB
+          difference = getDifference(stops[k-1]['dep'], stops[k]['dep'])
+          if difference <= 5
+            ids2Delete.push(stops[k-1]['id'])
+          else
+            p vehicle_id.to_s + ': too big difference(' + difference.to_s + ') between ' + sA.to_s + ' and ' + sB.to_s
+          end
+        end
+      end #each_with_index
+      return ids2Delete
+    end
+    
+    sql = 'SELECT vehicle_id FROM vehicle WHERE vehicle_type = "train"'
+    # sql = 'SELECT vehicle_id FROM vehicle WHERE vehicle_id = "IRE3351_8029103_0953"'
+    sqlStations = 'SELECT timetable.id, station_id, departure_time AS dep FROM timetable WHERE vehicle_id = ? ORDER BY departure_time'
+    rows = @db.execute(sql)
+    rows.each_with_index do |vehicle|
+      stops = @db.execute(sqlStations, vehicle['vehicle_id'])
+      duplicatedIDs = getDuplicatedStops(vehicle['vehicle_id'], stops)
+      if duplicatedIDs.length > 0
+        sqlDelete = 'DELETE FROM timetable WHERE id IN (' + duplicatedIDs.join(', ').to_s + ')'
+        @db.execute(sqlDelete)
+        p vehicle['vehicle_id'].to_s + ': removing ' + duplicatedIDs.join(', ')
+      end
+    end
+  end
 end

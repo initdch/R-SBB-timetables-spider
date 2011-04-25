@@ -214,6 +214,13 @@ namespace :vehicle do
     db.execute_batch IO.read(Dir.pwd + '/resources/sql/04-vehicle-remove-onestopper.sql')
     db.close
   end
+  
+  desc 'Detect vehicles with duplicate stations'
+  task :check_duplicate_stations do
+    v = Vehicle.new
+    v.check_duplicate_stations
+    v.close
+  end
 end
 
 task :show_about do

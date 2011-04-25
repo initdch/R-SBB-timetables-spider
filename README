@@ -57,3 +57,6 @@ rake vehicle:remove_onestopper
 
 # Run this step again because me might have stations without vehicle stops, so we don't want to display this station
 rake station:parse_type
+
+# Remove the stops of the vehicles that have duplicate consecutive stations but with different departure times. A bit similar with 'timetable:remove_duplicates' task
+rake vehicle:check_duplicate_stations

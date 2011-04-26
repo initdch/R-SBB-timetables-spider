@@ -38,13 +38,12 @@ class Departure < Crawler
           p "Fetching " + sbbURL
           begin
             sbbHTML = open(sbbURL)
-            File.copy(sbbHTML.path, cacheFile)
+            sleep 0.1
+            FileUtils.cp(sbbHTML.path, cacheFile)
           rescue
             p "ERROR: FETCHING " + sbbURL
-            next
+            break
           end
-
-          sleep 0.1
         end
         
         doc = Nokogiri::HTML(IO.read(cacheFile))

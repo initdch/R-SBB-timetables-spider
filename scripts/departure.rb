@@ -51,7 +51,7 @@ class Departure < Crawler
         hasNextPage = doc.xpath('//table[@class="hafas-content"]//td[span[@class="red"]]//a[contains(text(),"Weitere")]').length == 1
         if hasNextPage
           begin
-            timeLast = doc.xpath('//table[@class="hafas-content hafas-sq-content"]//tr[contains(@class,"zebra-row-3") or contains(@class,"zebra-row-2")][td[not(@colspan)]][last()]/td[1]/span')[0].text()
+            timeLast = doc.xpath('//table[@class="hafas-content hafas-sq-content"]//tr[contains(@class,"zebra-row-")][td[not(@colspan)]][last()]/td[1]/span')[0].text()
           rescue
             p "ERROR: XPATH IN " + cacheFile
             timeLast = time

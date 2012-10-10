@@ -233,8 +233,8 @@ class Station < Crawler
     newStations = []
     coder = HTMLEntities.new
     
-    doc.xpath('//tr[@class="zebra-row-0" or @class="zebra-row-1"]/td[1]/a[2]').each do |link|
-      coordinates = link.parent().children()[0]['href'].scan(/Location0\.X=([0-9]+?)&REQMapRoute0\.Location0\.Y=([0-9]+?)&/)
+    doc.xpath('//tr[@class="zebra-row-0" or @class="zebra-row-1"]').each do |tr|
+      coordinates = tr.xpath('td[1]/a')[0]['href'].scan(/MapLocation\.X=([0-9]+?)&MapLocation\.Y=([0-9]+?)&/)
       # TODO How to avoid 45.3483299999999 ? Round, 6 decimals ?
       longitude = coordinates[0][0].to_i * 0.000001
       latitude = coordinates[0][1].to_i * 0.000001
@@ -243,10 +243,10 @@ class Station < Crawler
         next
       end
 
-      sbbID = link['href'].scan(/input=([0-9]+?)&/)[0][0]
+      sbbID = tr.xpath('td[2]/a')[0]['href'].scan(/input=([0-9]+?)&/)[0][0]
       newStation = {
         'id'    => sbbID.to_i,
-        'name'  => coder.decode(link.content),
+        'name'  => coder.decode(tr.xpath('td[2]/a')[0].content),
         'x'     => longitude.round(6),
         'y'     => latitude.round(6)
       }

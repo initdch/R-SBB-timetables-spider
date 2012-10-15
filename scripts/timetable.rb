@@ -21,7 +21,7 @@ class Timetable < Crawler
           end
       
           doc = Nokogiri::HTML(IO.read(cacheFile))
-          row = doc.xpath('//table[@class="hafas-content hafas-sq-content"]//tr[contains(@class,"zebra-row-2") or contains(@class,"zebra-row-3")][td[not(@colspan)]]')
+          row = doc.xpath('//table[@class="hfs_stboard"]//tr[contains(@class,"zebra-row-2") or contains(@class,"zebra-row-3")][td[not(@colspan)]]')
       
           row.each do |tr|
             # TODO: better way ?
@@ -30,30 +30,22 @@ class Timetable < Crawler
             end
         
             begin
-              # If the vehicle image is placed in the 3rd column, then we have a timetable which includes prognosis
-              # We didn't find a smarter way of handling this
-              if tr.xpath('.//td[3]/a/img[contains(@src, "/img/products")]').length == 1
-                cells = [1, 3, 4, 5]
-              else
-                cells = [1, 2, 3, 4]
-              end
-
-              depTime         = tr.xpath('td[' + cells[0].to_s + ']/span').text()
-              vehicleType     = tr.xpath('td[' + cells[1].to_s + ']/a/img')[0]['src'].scan(/products\/(.*)_pic\.gif$/)[0][0]
-              vehicleName     = tr.xpath('td[' + cells[2].to_s + ']/span/a').text().gsub(/\n/, '')
-              stationID       = tr.xpath('td[' + cells[3].to_s + ']/a[1]')[0]['href'].scan(/input=([0-9]+?)&/)[0][0]
-              vehicleNotes    = tr.xpath('td[' + cells[3].to_s + ']/span[@class="rs"]').text().gsub(/\n/, '')
+              depTime         = tr.xpath('td[@class="time"]/span').text()
+              vehicleType     = tr.xpath('td[@class="journey"]/a/img')[0]['src'].scan(/products\/(.*)_pic\.png$/)[0][0]
+              vehicleName     = tr.xpath('td[@class="journey"]/a').text().gsub(/\n/, '')
+              stationID       = tr.xpath('td[@class="result"]/a[1]')[0]['href'].scan(/input=([0-9]+?)&/)[0][0]
+              vehicleNotes    = tr.xpath('td[@class="result"]/span[@class="rs"]').text().gsub(/\n/, '')
 
               # Build vehicle ID 
-              stationEndID    = tr.xpath('td[' + cells[3].to_s + ']/span[1]/a')[0]['href'].scan(/input=([0-9]+?)&/)[0][0]
-              stationEndTime  = tr.xpath('td[' + cells[3].to_s + ']').text().scan(/[0-9:]{5}/).last().sub(':', '')
+              stationEndID    = tr.xpath('td[@class="result"]/span[@class="bold"]/a')[0]['href'].scan(/input=([0-9]+?)&/)[0][0]
+              stationEndTime  = tr.xpath('td[@class="result"]').text().scan(/[0-9:]{5}/).last().sub(':', '')
               vehicleID = vehicleName.gsub(/\s/, '') + '_' + stationEndID + '_' + stationEndTime
             rescue => e
               p "ERROR: wrong XPATH while parsing " + cacheFile
               p e.message
               next
             end
-        
+            
             sql = "INSERT INTO timetable (id, station_id, vehicle_id, departure_time, vehicle_type, vehicle_name, vehicle_notes) VALUES (?, ?, ?, ?, ?, ?, ?)"
             begin
               @db.execute(sql, nil, stationID, vehicleID, depTime, vehicleType, vehicleName, vehicleNotes)

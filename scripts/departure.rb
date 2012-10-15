@@ -4,7 +4,7 @@ class Departure < Crawler
 
     time = Time.new
     @dateStart = time.strftime("%d.%m.%y")
-    @dateEnd = "10.12.11"
+    @dateEnd = "1.12.#{time.strftime("%Y")}"
   end
 
   def fetch

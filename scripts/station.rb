@@ -204,9 +204,22 @@ class Station < Crawler
     stationCacheFile = stationCacheFolder + "/" + cacheFile
     
     def fetchSBBStation input, cacheFile, params
-      sbbURL = "http://fahrplan.sbb.ch/bin/bhftafel.exe/dn?distance=50&input=" + CGI::escape(input) + "&near=Anzeigen"
-      # p "Fetching " + sbbURL
-      sbbHTML = open(sbbURL)
+      sbbURL = "http://fahrplan.sbb.ch/bin/stboard.exe/de?distance=50&input=" + CGI::escape(input) + "&near=Anzeigen"
+			retries = 10
+			timeout = 1
+			# retry if URL can't be fetched
+			begin
+      	sbbHTML = open(sbbURL)
+			rescue StandardError=>e
+				puts "\tCaught: #{e}"
+				if retries > 0
+					puts "\tTrying #{retries} more times \t#{timeout}sec timeout\n"
+					retries -= 1
+					sleep timeout
+					timeout *= 2
+					retry
+				end
+			end
       sleep 0.1
       
       if params['ignoreAmbigous'] == false

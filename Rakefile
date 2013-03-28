@@ -6,6 +6,7 @@ require "./scripts/departure.rb"
 require "./scripts/timetable.rb"
 require "./scripts/lookup_vehicle_types.rb"
 require './scripts/vehicle.rb'
+require "./scripts/gtfs.rb"
 
 crawlerDBPath = Dir.pwd + "/tmp/sbb.db"
 
@@ -221,6 +222,15 @@ namespace :vehicle do
     v.check_duplicate_stations
     v.close
   end
+end
+
+namespace :gtfs do
+	desc 'Export Database to GTFS format'
+	task :export do
+		g = GTFS.new
+		g.parse
+		g.close
+	end
 end
 
 task :show_about do

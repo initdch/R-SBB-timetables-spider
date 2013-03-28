@@ -115,4 +115,12 @@ $MAP_VEHICLETYPE_STATIONTYPE = {
   'tx'  => 'bus',
 
   'zug' => 'train',
+	'bex' => 'train',
+	'gex' => 'train',
+
+	'kb' => 'bus',
+	'nb' => 'bus',
+	'nfo' => 'bus',
+
+	'oic' => 'train',
 }

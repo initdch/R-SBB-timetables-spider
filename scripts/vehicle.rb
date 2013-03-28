@@ -3,6 +3,7 @@ class Vehicle < Crawler
     sql = 'SELECT * FROM vehicle'
     sqlArrival = 'INSERT INTO timetable (id, station_id, vehicle_id, departure_time, vehicle_type, vehicle_name, vehicle_notes) VALUES (?, ?, ?, ?, ?, ?, ?)'
     sqlVehicleData = 'UPDATE vehicle SET vehicle_type = ?, vehicle_name = ?, time_start = ?, time_end = ?, station_start = ?, station_end = ? WHERE vehicle_id = ?'
+		sqlStartStation = 'SELECT *  FROM timetable WHERE vehicle_id = ? ORDER BY time(departure_time, ?) LIMIT 1'
     
     p 'START ' + Time.new.strftime('%Y-%m-%d %H:%M:%S')
     
@@ -10,15 +11,16 @@ class Vehicle < Crawler
     vehicleData = []
     rows.each_with_index do |vehicle, k|
       vehicleNameNorm, stationB, arrivalTime = vehicle['vehicle_id'].split('_')
-      sql = 'SELECT * FROM timetable WHERE vehicle_id = ? ORDER BY departure_time LIMIT 1'
-      stopA = @db.execute(sql, vehicle['vehicle_id'])
+			endTime = arrivalTime[0,2] + ':' + arrivalTime[2,2]
+			diffTime = '-' + endTime + ':01'
+      stopA = @db.execute(sqlStartStation, vehicle['vehicle_id'],diffTime)
       
       vehicleRow = {
           'vehicle_id'    => vehicle['vehicle_id'],
           'vehicle_type'  => stopA[0]['vehicle_type'],
           'vehicle_name'  => stopA[0]['vehicle_name'],
           'time_start'    => stopA[0]['departure_time'],
-          'time_end'      => arrivalTime[0,2] + ':' + arrivalTime[2,2],
+          'time_end'      => endTime,
           'station_start' => stopA[0]['station_id'].to_i,
           'station_end'   => stationB.to_i
       }

@@ -4,7 +4,11 @@ class Timetable < Crawler
     
     sql = "SELECT * FROM station"
     rows = @db.execute(sql)
-    
+
+		# Set the PRAGMA Synchronous to normal to enable faster insert
+		# System crash or power failure may corrupt the database
+		@db.synchronous=1
+
     stationCacheFolder = Dir.pwd + "/tmp/cache/departure"
     
     kInserts = 1
@@ -23,12 +27,7 @@ class Timetable < Crawler
           doc = Nokogiri::HTML(IO.read(cacheFile))
           row = doc.xpath('//table[@class="hfs_stboard"]//tr[contains(@class,"zebra-row-2") or contains(@class,"zebra-row-3")][td[not(@colspan)]]')
       
-          row.each do |tr|
-            # TODO: better way ?
-            if tr.css('td').length() < 5
-              next
-            end
-        
+          row.each do |tr|				       
             begin
               depTime         = tr.xpath('td[@class="time"]/span').text()
               vehicleType     = tr.xpath('td[@class="journey"]/a/img')[0]['src'].scan(/products\/(.*)_pic\.png$/)[0][0]
@@ -55,7 +54,7 @@ class Timetable < Crawler
               if kInserts > 10000
                 kInserts = 1
                 @db.commit
-                p "Batch INSERTs"
+                puts  "(" + Time.new.strftime("%Y-%m-%d %H:%M:%S") + ") Batch INSERTs"
                 @db.transaction
               end
             rescue => e
@@ -70,7 +69,6 @@ class Timetable < Crawler
         end #End station pages
       end #End SQL
     @db.commit 
-    
     p "END " + Time.new.strftime("%Y-%m-%d %H:%M:%S")
   end
   

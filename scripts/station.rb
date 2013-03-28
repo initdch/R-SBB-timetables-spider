@@ -105,6 +105,7 @@ class Station < Crawler
         end
         
         currentType = $MAP_VEHICLETYPE_STATIONTYPE[foundType]
+#  				puts "currentType: " + currentType + ", finalType: " + finalType + "\n"
         if $MAP_STATIONTYPE_PRIORITY[currentType] < $MAP_STATIONTYPE_PRIORITY[finalType]
           finalType = currentType
         end

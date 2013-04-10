@@ -18,7 +18,7 @@ namespace :setup do
     sql = IO.read(Dir.pwd + "/resources/sql/01-schema.sql")
     db.execute_batch sql
     db.close
-    
+
     Rake::Task['station:set_bounds'].execute
   end
 
@@ -29,18 +29,18 @@ namespace :setup do
       puts "Creating cache folder " + cacheFolder
       FileUtils.mkdir_p cacheFolder
     end
-  
+
     cacheFolder = Dir.pwd + "/tmp/cache/departure"
     if ! File.directory? cacheFolder
       puts "Creating cache folder " + cacheFolder
       FileUtils.mkdir_p cacheFolder
     end
-  
+
     if ! File.file? crawlerDBPath
       create_db crawlerDBPath
     end
   end
-  
+
   desc "Create DB"
   task :create_db do
     if File.file? crawlerDBPath
@@ -56,7 +56,7 @@ namespace :setup do
 
     create_db crawlerDBPath
   end
-  
+
   desc "Remove temporarely folder"
   task :clean do
     puts "The folder " + Dir.pwd + "/tmp will be deleted !\nContinue ? yes/no"
@@ -83,26 +83,26 @@ namespace :station do
     s.fetch
     s.close
   end
-  
+
   desc "Remove stations outside of Switzerland"
   task :geo_clean do
     s = Station.new
     s.clean_geo
     s.close
   end
-  
+
   desc "Export stations as CSV"
   task :export do
     sh 'sqlite3 -header -csv tmp/sbb.db "SELECT * FROM station" > tmp/station.csv'
   end
-  
+
   desc "Guess the type from timetables"
   task :parse_type do
     s = Station.new
     s.parse_type
     s.close
   end
-  
+
   desc "Set the area bounds (optional parameter: bounds = SW, NE corners in long/lat)"
   task :set_bounds do
     # TODO - create a Bounds object to decouple the code from Rake
@@ -111,14 +111,14 @@ namespace :station do
     else
       bounds = ENV['bounds']
     end
-    
+
     db = SQLite3::Database.new crawlerDBPath
-    
+
     sql = "DELETE FROM settings WHERE key = 'bounds'"
     db.execute sql
     sql = "INSERT INTO settings (key, value) VALUES ('bounds', ?)"
     db.execute sql, bounds
-    
+
     s = Station.new
 
     if ENV['bounds'] == nil
@@ -131,10 +131,10 @@ namespace :station do
     else
       station = s.findStationsInArea(bounds)
     end
-    
+
     sql = "DELETE FROM station"
     db.execute sql
-    
+
     s.insertStation(station)
 
     db.close
@@ -148,7 +148,7 @@ namespace :departure do
     d.fetch
     d.close
   end
-  
+
   desc "Removed files cached files containing errors"
   task :files_clean do
     p 'Removing files ... please rerun departure:fetch task if any files are shown '
@@ -164,21 +164,21 @@ namespace :timetable do
     t.parse
     t.close
   end
-  
+
   desc "Empty timetables table"
   task :empty_table do
     db = SQLite3::Database.new crawlerDBPath
     db.execute_batch IO.read(Dir.pwd + "/resources/sql/03-timetable.sql")
     db.close
   end
-  
+
   desc "Remove duplicates from the timetables"
   task :remove_duplicates do
     t = Timetable.new
     t.remove_duplicates
     t.close
   end
-  
+
   desc "Remove stops of the not-known stations"
   task :remove_notknown_stations do
     db = SQLite3::Database.new crawlerDBPath
@@ -194,28 +194,28 @@ namespace :vehicle do
     db.execute_batch IO.read(Dir.pwd + '/resources/sql/04-vehicle-insert.sql')
     db.close
   end
-  
+
   desc 'Build vehicles'
   task :build do
     v = Vehicle.new
     v.build
     v.close
   end
-  
+
   desc 'Reset vehicles and arrivals'
   task :reset do
     db = SQLite3::Database.new crawlerDBPath
     db.execute_batch IO.read(Dir.pwd + '/resources/sql/04-vehicle-empty.sql')
     db.close
   end
-  
+
   desc 'Remove one-stopper vehicles'
   task :remove_onestopper do
     db = SQLite3::Database.new crawlerDBPath
     db.execute_batch IO.read(Dir.pwd + '/resources/sql/04-vehicle-remove-onestopper.sql')
     db.close
   end
-  
+
   desc 'Detect vehicles with duplicate stations'
   task :check_duplicate_stations do
     v = Vehicle.new
@@ -225,16 +225,25 @@ namespace :vehicle do
 end
 
 namespace :gtfs do
-	desc 'Export Database to GTFS format'
-	task :export do
-		g = GTFS.new
-		g.parse
-		g.close
-	end
+  desc 'Export Database to GTFS format'
+  task :export do
+    g = GTFS.new
+    g.stops
+    g.trips
+    g.stoptimes
+    g.close
+  end
+
+  desc 'Create agency and calendar files'
+  task :files do
+    g = GTFS.new
+    g.dummy
+    g.close
+  end
 end
 
 task :show_about do
-    puts "For a list of the possible tasks please run 'rake -T'"
+  puts "For a list of the possible tasks please run 'rake -T'"
 end
 
 task :default => "show_about"

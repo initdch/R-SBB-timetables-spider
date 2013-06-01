@@ -2,9 +2,12 @@ class Departure < Crawler
   def initialize
     super
 
-    time = Time.new
-    @dateStart = time.strftime("%d.%m.%y")
-    @dateEnd = "1.12.#{time.strftime("%Y")}"
+    # time = Time.new
+    # @dateStart = time.strftime("%d.%m.%y")
+    # @dateEnd = "1.12.#{time.strftime("%Y")}"
+    
+    @dateStart = 04.06.13
+    @dateEnd = 04.06.13
   end
 
   def fetch

@@ -123,4 +123,9 @@ $MAP_VEHICLETYPE_STATIONTYPE = {
   'nfo' => 'bus',
 
   'oic' => 'train',
+  'm' => 'train',
+  'nft' => 'tram',
+  'rb' => 'train',
+  's60' => 'train',
+  't' => 'tram',
 }

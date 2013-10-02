@@ -5,6 +5,7 @@ class GTFS < Crawler
     super
 
     @gtfsFolder = Dir.pwd + "/tmp/gtfs"
+    Dir.mkdir(@gtfsFolder) unless File.exists?(@gtfsFolder)
   end
 
   def dummy

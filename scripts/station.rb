@@ -63,7 +63,7 @@ class Station < Crawler
 
     rows.each do |r|
       if ! chPolygon.contains_point?({'x' => r['x'].to_f, 'y' => r['y'].to_f})
-        sql = "DELETE FROM station WHERE id = " + r['id']
+        sql = "DELETE FROM station WHERE id = " + r['id'].to_s
         @db.execute(sql)
       end
     end
